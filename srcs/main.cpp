@@ -59,8 +59,15 @@ int main(int argc, char *argv[]) {
     std::string obj_file_name = argv[1];
 
     Parser p("../resources/" + obj_file_name);
-    p.parse_obj_file();
-
+    std::vector<std::vector<double>> obj_vertices;
+    std::vector<std::vector<int>> obj_face_elements;
+    p.parse_obj_file(obj_vertices, obj_face_elements);
+    std::vector<std::vector<double>> polygons;
+    p.create_polygons(obj_vertices, obj_face_elements, polygons);
+    const int info_num = 5;
+    std::cout << "SIZE: " << polygons.size() * info_num << std::endl;
+    float new_vertices[polygons.size() * info_num];
+    p.convert_polygons_vector_to_float_vertices(polygons, info_num);
     // float vertices[] = {
     //     // positions          // texture coords
     //     -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
