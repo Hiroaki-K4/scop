@@ -7,6 +7,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "shader.h"
+#include "Parser.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -22,10 +23,15 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+    if (argc != 2) {
+        std::cout << "ERROR: You should run ./scop [obj file name]" << std::endl;
+        return EXIT_FAILURE;
+    }
+
     if(!glfwInit()){
-        std::cout << "Failed to initialize GLFW" << std::endl;
-        return -1;
+        std::cout << "ERROR: Failed to initialize GLFW" << std::endl;
+        return EXIT_FAILURE;
     }
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -33,66 +39,116 @@ int main() {
 
     GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
     if (window == NULL) {
-        std::cout << "Failed to create GLFW window" << std::endl;
+        std::cout << "ERROR: Failed to create GLFW window" << std::endl;
         glfwTerminate();
-        return -1;
+        return EXIT_FAILURE;
     }
 
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        std::cout << "Failed to initialize GLAD" << std::endl;
+        std::cout << "ERROR: Failed to initialize GLAD" << std::endl;
         glfwTerminate();
-        return -1;
+        return EXIT_FAILURE;
     }
 
     // Build and compile our shader program
     Shader ourShader("texture.vs", "texture.fs");
 
+    std::string obj_file_name = argv[1];
+
+    Parser p("../resources/" + obj_file_name);
+    p.parse_obj_file();
+
+    // float vertices[] = {
+    //     // positions          // texture coords
+    //     -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+    //     0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
+    //     0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+    //     0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+    //     -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+    //     -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+
+    //     -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+    //     0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+    //     0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+    //     0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+    //     -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
+    //     -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+
+    //     -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+    //     -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+    //     -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+    //     -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+    //     -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+    //     -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+
+    //     0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+    //     0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+    //     0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+    //     0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+    //     0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+    //     0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+
+    //     -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+    //     0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
+    //     0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+    //     0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+    //     -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+    //     -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+
+    //     -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+    //     0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+    //     0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+    //     0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+    //     -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
+    //     -0.5f, 0.5f, -0.5f, 0.0f, 1.0f
+    // };
     float vertices[] = {
-        // positions          // colors          // texture coords
-        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-        0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
-        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
-        -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-
-        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-        -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-        0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-
-        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
-        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-
-        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
-        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-        -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
-        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f
+        // positions          // texture coords
+        0.232406, -1.216630, 1.133818, 0.0f, 0.0f,
+        0.232406, -0.745504, 2.843098, 0.0f, 0.0f,
+        -0.227475, -0.745504, 2.843098, 0.0f, 0.0f,
+        -0.227475, -1.216630, 1.133818, 0.0f, 0.0f,
+        0.232407, 1.119982, 1.133819, 0.0f, 0.0f,
+        0.232406, 1.119982, 1.602814, 0.0f, 0.0f,
+        -0.227475, 1.119982, 1.602813, 0.0f, 0.0f,
+        -0.227475, 1.119982, 1.133818, 0.0f, 0.0f,
+        0.232406, -0.340316, 2.843098, 0.0f, 0.0f,
+        -0.227475, -0.340316, 2.843098, 0.0f, 0.0f,
+        0.232407, -0.305193, 1.133819, 0.0f, 0.0f,
+        0.232407, -0.294496, 2.297937, 0.0f, 0.0f,
+        -0.227475, -0.305193, 1.133818, 0.0f, 0.0f,
+        -0.227475, -0.294496 ,2.297937, 0.0f, 0.0f,
+        0.232406, -1.222569, 1.497195, 0.0f, 0.0f,
+        0.232406, -0.745504, 1.477731, 0.0f, 0.0f,
+        -0.227475, -0.745504, 1.477731, 0.0f, 0.0f,
+        -0.227475, -1.222569, 1.497194, 0.0f, 0.0f,
+        -0.227403, -0.731178, 0.901477, 0.0f, 0.0f,
+        -0.227403, -0.731178, -0.037620, 0.0f, 0.0f,
+        0.223704, -0.731178, -0.037620, 0.0f, 0.0f,
+        0.223704, -0.731178, 0.901477, 0.0f, 0.0f,
+        -0.227403, 1.119377, 0.901477, 0.0f, 0.0f,
+        -0.227403, 1.119377, -0.037620, 0.0f, 0.0f,
+        0.223704, 1.119377, -0.037620, 0.0f, 0.0f,
+        0.223704, 1.119377, 0.901477, 0.0f, 0.0f,
+        -0.227403, -0.129772, 0.901477, 0.0f, 0.0f,
+        -0.227403, 0.551492, 0.384487, 0.0f, 0.0f,
+        -0.227403, 1.104268, 0.408501, 0.0f, 0.0f,
+        -0.227403, 0.507336, 0.901477, 0.0f, 0.0f,
+        0.223704, 0.507336, 0.901477, 0.0f, 0.0f,
+        0.223704, 1.104269, 0.408501, 0.0f, 0.0f,
+        0.223704, 0.551492, 0.384487, 0.0f, 0.0f,
+        0.223704, -0.129772, 0.901477, 0.0f, 0.0f,
+        -0.227403, 0.634134, -0.037620, 0.0f, 0.0f,
+        -0.227403, -0.066768, 0.398575, 0.0f, 0.0f,
+        -0.227403, -0.684649, 0.389681, 0.0f, 0.0f,
+        -0.227403, -0.075523, -0.037620, 0.0f, 0.0f,
+        0.223704, 0.634134, -0.037620, 0.0f, 0.0f,
+        0.223704, -0.066768, 0.398575, 0.0f, 0.0f,
+        0.223704, -0.684649, 0.389681, 0.0f, 0.0f,
+        0.223704, -0.075523, -0.037620, 0.0f, 0.0f,
     };
     // Setup VAO
     unsigned int VBO, VAO, EBO;
@@ -199,7 +255,8 @@ int main() {
         // Render the triangle
         ourShader.use();
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        // glDrawArrays(GL_TRIANGLES, 0, 36);
+        glDrawArrays(GL_POINTS, 0, 42);
 
         // Swap buffers and poll IO events
         glfwSwapBuffers(window);
