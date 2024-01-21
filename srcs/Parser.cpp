@@ -1,6 +1,7 @@
 #include <iostream>
 #include "Parser.hpp"
 
+
 Parser::Parser(const std::string &obj_path) {
     std::cout << "obj path: " << obj_path << std::endl;
     this->obj_path = obj_path;
@@ -84,21 +85,21 @@ void Parser::create_polygons(
         std::vector<int> face_elem = face_elements[i];
         if (face_elem.size() >= 3) {
             for (int j = 0; j < 3; j++) {
-                vert = vertices[face_elem[j]];
+                vert = vertices[face_elem[j] - 1];
                 vert.push_back(0.0f);
                 vert.push_back(0.0f);
                 polygons.push_back(vert);
             }
             if (face_elem.size() == 4) {
-                vert = vertices[face_elem[0]];
+                vert = vertices[face_elem[0] - 1];
                 vert.push_back(0.0f);
                 vert.push_back(0.0f);
                 polygons.push_back(vert);
-                vert = vertices[face_elem[2]];
+                vert = vertices[face_elem[2] - 1];
                 vert.push_back(0.0f);
                 vert.push_back(0.0f);
                 polygons.push_back(vert);
-                vert = vertices[face_elem[3]];
+                vert = vertices[face_elem[3] - 1];
                 vert.push_back(0.0f);
                 vert.push_back(0.0f);
                 polygons.push_back(vert);
@@ -106,22 +107,4 @@ void Parser::create_polygons(
         }
     }
     std::cout << "polygons size: " << polygons.size() << std::endl;
-}
-
-float* Parser::convert_polygons_vector_to_float_vertices(
-    const std::vector<std::vector<double>> &polygons,
-    const int info_num) {
-    float vertices[polygons.size() * info_num];
-    std::cout << "size: " << sizeof(vertices) << std::endl;
-    for (int i = 0; i < polygons.size(); i++) {
-        for (int j = 0; j < polygons.size(); j++) {
-            vertices[i * info_num + j] = polygons[i][j];
-            // std::cout << "helo" << std::endl;
-        }
-    }
-    // TODO: Fix float arr to store vertex value
-    for (int i = 0; i < 30; i++) {
-        std::cout << "Float: " << vertices[i] << std::endl;
-    }
-    return {};
 }

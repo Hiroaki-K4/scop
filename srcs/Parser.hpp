@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+
 class Parser
 {
     private:
@@ -26,9 +27,6 @@ class Parser
             const std::vector<std::vector<double>> &vertices,
             const std::vector<std::vector<int>> &face_elements,
             std::vector<std::vector<double>> &polygons);
-        float* convert_polygons_vector_to_float_vertices(
-            const std::vector<std::vector<double>> &polygons,
-            const int info_num);
 };
 
 #endif
