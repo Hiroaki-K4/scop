@@ -16,6 +16,7 @@ glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 float deltaTime = 0.0f; // Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
 float fov = 45.0f;
+int colorType = 1;
 
 
 void processInput(GLFWwindow *window) {
@@ -39,7 +40,15 @@ void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
         cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
     }
-    // TODO: Add swatch key for changing color
+    if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
+        colorType = 0;
+    }
+    if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) {
+        colorType = 1;
+    }
+    if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS) {
+        colorType = 2;
+    }
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
@@ -118,7 +127,7 @@ int main(int argc, char *argv[]) {
         processInput(window);
 
         // Clear the colorbuffer
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Project to 2D
@@ -143,9 +152,16 @@ int main(int argc, char *argv[]) {
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, &projection[0][0]);
 
         float timeValue = glfwGetTime();
-        float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+        float colorValue = (sin(timeValue) / 2.0f) + 0.5f;
         int vertexColorLocation = glGetUniformLocation(ourShader.ID, "ourColor");
-        glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+
+        if (colorType == 0) {
+            glUniform4f(vertexColorLocation, colorValue, 0.0f, 0.0f, 1.0f);
+        } else if (colorType == 1) {
+            glUniform4f(vertexColorLocation, 0.0f, colorValue, 0.0f, 1.0f);
+        } else if (colorType == 2) {
+            glUniform4f(vertexColorLocation, 0.0f, 0.0f, colorValue, 1.0f);
+        }
 
         // Render the triangle
         ourShader.use();
