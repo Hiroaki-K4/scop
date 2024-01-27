@@ -86,22 +86,14 @@ void Parser::create_polygons(
         if (face_elem.size() >= 3) {
             for (int j = 0; j < 3; j++) {
                 vert = vertices[face_elem[j] - 1];
-                vert.push_back(0.0f);
-                vert.push_back(0.0f);
                 polygons.push_back(vert);
             }
             if (face_elem.size() == 4) {
                 vert = vertices[face_elem[0] - 1];
-                vert.push_back(0.0f);
-                vert.push_back(0.0f);
                 polygons.push_back(vert);
                 vert = vertices[face_elem[2] - 1];
-                vert.push_back(0.0f);
-                vert.push_back(0.0f);
                 polygons.push_back(vert);
                 vert = vertices[face_elem[3] - 1];
-                vert.push_back(0.0f);
-                vert.push_back(0.0f);
                 polygons.push_back(vert);
             }
         }

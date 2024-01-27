@@ -6,11 +6,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "shader.h"
+#include "Shader.h"
 #include "Parser.hpp"
-
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
 
 
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
@@ -19,6 +16,7 @@ glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 float deltaTime = 0.0f; // Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
 float fov = 45.0f;
+int colorType = 1;
 
 
 void processInput(GLFWwindow *window) {
@@ -41,6 +39,15 @@ void processInput(GLFWwindow *window) {
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
         cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    }
+    if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
+        colorType = 0;
+    }
+    if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) {
+        colorType = 1;
+    }
+    if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS) {
+        colorType = 2;
     }
 }
 
@@ -79,7 +86,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Build and compile our shader program
-    Shader ourShader("texture.vs", "texture.fs");
+    Shader ourShader("shader.vs", "shader.fs");
 
     std::string obj_file_name = argv[1];
 
@@ -89,7 +96,7 @@ int main(int argc, char *argv[]) {
     p.parse_obj_file(obj_vertices, obj_face_elements);
     std::vector<std::vector<double>> polygons;
     p.create_polygons(obj_vertices, obj_face_elements, polygons);
-    const int info_num = 5;
+    const int info_num = 3;
     float vertices[polygons.size() * info_num];
     for (int i = 0; i < polygons.size(); i++) {
         for (int j = 0; j < info_num; j++) {
@@ -108,11 +115,8 @@ int main(int argc, char *argv[]) {
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     // Position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    // Texture attribute
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
 
     // Render loop
     while (!glfwWindowShouldClose(window)) {
@@ -120,7 +124,7 @@ int main(int argc, char *argv[]) {
         processInput(window);
 
         // Clear the colorbuffer
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Project to 2D
@@ -143,6 +147,18 @@ int main(int argc, char *argv[]) {
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, &projection[0][0]);
+
+        float timeValue = glfwGetTime();
+        float colorValue = (sin(timeValue) / 2.0f) + 0.5f;
+        int vertexColorLocation = glGetUniformLocation(ourShader.ID, "ourColor");
+
+        if (colorType == 0) {
+            glUniform4f(vertexColorLocation, colorValue, 0.0f, 0.0f, 1.0f);
+        } else if (colorType == 1) {
+            glUniform4f(vertexColorLocation, 0.0f, colorValue, 0.0f, 1.0f);
+        } else if (colorType == 2) {
+            glUniform4f(vertexColorLocation, 0.0f, 0.0f, colorValue, 1.0f);
+        }
 
         // Render the triangle
         ourShader.use();
