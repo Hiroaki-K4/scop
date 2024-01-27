@@ -86,7 +86,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Build and compile our shader program
-    Shader ourShader("texture.vs", "texture.fs");
+    Shader ourShader("shader.vs", "shader.fs");
 
     std::string obj_file_name = argv[1];
 
@@ -96,7 +96,7 @@ int main(int argc, char *argv[]) {
     p.parse_obj_file(obj_vertices, obj_face_elements);
     std::vector<std::vector<double>> polygons;
     p.create_polygons(obj_vertices, obj_face_elements, polygons);
-    const int info_num = 5;
+    const int info_num = 3;
     float vertices[polygons.size() * info_num];
     for (int i = 0; i < polygons.size(); i++) {
         for (int j = 0; j < info_num; j++) {
@@ -115,11 +115,8 @@ int main(int argc, char *argv[]) {
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     // Position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    // Texture attribute
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
 
     // Render loop
     while (!glfwWindowShouldClose(window)) {
